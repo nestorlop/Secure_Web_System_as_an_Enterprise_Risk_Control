@@ -1,0 +1,16 @@
+ServerName __HOSTNAME__
+<VirtualHost *:80>
+    ServerName __HOSTNAME__
+    Alias /.well-known/acme-challenge/ /var/www/certbot/.well-known/acme-challenge/
+    <Directory /var/www/certbot>
+        Options -Indexes
+        AllowOverride None
+        Require all granted
+    </Directory>
+    # Serve only ACME challenges until a valid certificate has been obtained.
+    RewriteEngine On
+    RewriteCond %{REQUEST_URI} !^/\.well-known/acme-challenge/
+    RewriteRule ^ - [R=503,L]
+    ErrorLog /proc/self/fd/2
+    CustomLog /proc/self/fd/1 "%h %t \"%m %U %H\" %>s %b"
+</VirtualHost>

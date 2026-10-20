@@ -3,9 +3,7 @@ target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
-.env
 
-.env.*
 ### STS ###
 .apt_generated
 .classpath
@@ -33,3 +31,17 @@ build/
 
 ### VS Code ###
 .vscode/
+**/node_modules/
+**/dist/
+**/target/
+**/.env
+**/.env.*
+!**/.env.example
+!**/.env.production.example
+*.log
+*.pem
+*.key
+*.p12
+
+# Previous project retained locally (may contain local configuration)
+legacy-original/

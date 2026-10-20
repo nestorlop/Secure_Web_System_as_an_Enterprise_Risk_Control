@@ -1,0 +1,22 @@
+[Unit]
+Description=Enterprise Risk API
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=riskapi
+Group=riskapi
+WorkingDirectory=/opt/enterprise-risk-api
+EnvironmentFile=/etc/enterprise-risk-api.env
+ExecStart=/usr/bin/java -jar /opt/enterprise-risk-api/app.jar
+Restart=on-failure
+RestartSec=5
+SuccessExitStatus=143
+UMask=0027
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

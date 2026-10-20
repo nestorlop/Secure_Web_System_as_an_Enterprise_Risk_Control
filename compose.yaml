@@ -1,0 +1,60 @@
+name: enterprise-risk-lab
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: deploy/docker/backend.Dockerfile
+    restart: unless-stopped
+    environment:
+      AUTH0_ISSUER_URI: https://${AUTH0_DOMAIN:?Configure AUTH0_DOMAIN}/
+      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE:-https://enterprise-risk-api}
+      CORS_ALLOWED_ORIGINS: https://${PUBLIC_HOSTNAME:?Configure PUBLIC_HOSTNAME}
+      SERVER_ADDRESS: 0.0.0.0
+    # Intentionally no ports: mapping. Apache connects over this Compose network.
+    networks: [application]
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    healthcheck:
+      test: [CMD, curl, --fail, --silent, http://127.0.0.1:8080/actuator/health]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  web:
+    build:
+      context: .
+      dockerfile: deploy/docker/web.Dockerfile
+      args:
+        VITE_AUTH0_DOMAIN: ${AUTH0_DOMAIN:?Configure AUTH0_DOMAIN}
+        VITE_AUTH0_CLIENT_ID: ${AUTH0_CLIENT_ID:?Configure AUTH0_CLIENT_ID}
+        VITE_AUTH0_AUDIENCE: ${AUTH0_AUDIENCE:-https://enterprise-risk-api}
+    restart: unless-stopped
+    environment:
+      PUBLIC_HOSTNAME: ${PUBLIC_HOSTNAME:?Configure PUBLIC_HOSTNAME}
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "80:80"
+      - "443:443"
+    networks: [application]
+    volumes:
+      - certificates:/etc/letsencrypt:ro
+      - acme-webroot:/var/www/certbot:ro
+
+  certbot:
+    image: certbot/certbot:v5.1.0
+    profiles: [tools]
+    volumes:
+      - certificates:/etc/letsencrypt
+      - acme-webroot:/var/www/certbot
+
+networks:
+  # Not internal:true: the resource server needs outgoing HTTPS to Auth0 JWKS.
+  application:
+volumes:
+  certificates:
+  acme-webroot:

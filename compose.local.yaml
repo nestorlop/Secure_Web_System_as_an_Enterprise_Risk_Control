@@ -1,0 +1,7 @@
+# Development override only. Do not include this file in the public deployment command.
+services:
+  backend:
+    environment:
+      CORS_ALLOWED_ORIGINS: http://localhost:5173
+    ports:
+      - "127.0.0.1:8081:8080"

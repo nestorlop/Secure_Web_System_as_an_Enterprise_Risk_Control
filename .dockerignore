@@ -1,0 +1,14 @@
+.git
+**/node_modules
+**/target
+**/dist
+**/.env
+**/.env.*
+**/*.log
+**/*.pem
+**/*.key
+
+legacy-original
+img
+.github
+.vscode
